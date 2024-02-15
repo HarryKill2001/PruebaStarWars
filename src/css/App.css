@@ -10,5 +10,10 @@
 }
 
 .lamina {
-    height: 200px;
+    height: 250px;
+}
+
+.sobre-bloqueado
+{
+    background-color: #FF7B7B;
 }

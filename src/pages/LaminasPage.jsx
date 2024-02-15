@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import Sobre from '../components/Sobre';
+import React, { useEffect, useState } from 'react'
+import Sobre from '../components/Sobre'
 import axios from 'axios';
 import Lamina from '../components/Lamina';
 
 function LaminasPage() {
-    const [sobresBloqueados, setSobresBloqueados] = useState([false, false, false, false]);
+    const [sobresBloqueados, setSobresBloqueados] = useState(false);
     const [tiempoRestante, setTiempoRestante] = useState(0);
     const [seleccionoSobre, setSeleccionoSobre] = useState(false);
     const [sobreObtenido, setSobreObtenido] = useState({});
@@ -29,22 +29,27 @@ function LaminasPage() {
         }, 60000);
     };
 
+    // conf 1: 1 pelicula, 3 personajes, 1 nave
+    // conf 2: 3 personajes, 2 nave
+
     const obtenerSobre = async (indiceSobre) => {
         if (!sobresBloqueados[indiceSobre]) {
             bloquearSobresTemporizado();
+            setLoading(true);
 
             try {
+
                 const obtenerElementoAleatorio = async (url, maximo) => {
                     let elementoAleatorio = null;
                     while (!elementoAleatorio) {
                         try {
                             const idAleatorio = Math.floor(Math.random() * maximo) + 1;
                             const respuesta = await axios.get(`${url}/${idAleatorio}/`);
-                            if (respuesta.status === 200) {
+                            if (respuesta.status == 200) {
                                 elementoAleatorio = respuesta.data;
                             }
                         } catch (error) {
-                            if (error.response.status === 404) {
+                            if (error.response.status == 404) {
                                 console.error("Recurso no encontrado");
                             } else {
                                 console.error("Ha ocurrido un error", error);
@@ -81,8 +86,10 @@ function LaminasPage() {
 
                 setSobreObtenido(laminasSobre);
                 setSeleccionoSobre(true);
-                console.log(laminasSobre);
+                setLoading(false);
+                console.log(laminasSobre)
             } catch (error) {
+                setLoading(false);
                 console.error('Error al realizar la consulta:', error);
             }
         }
@@ -99,42 +106,46 @@ function LaminasPage() {
             <div className="container-fluid">
                 <div className="row">
                     {[1, 2, 3, 4].map((sobre, index) => (
-                        <Sobre
-                            key={sobre}
+                        <Sobre key={sobre}
                             name={`Sobre ${sobre}`}
                             abrirSobre={() => obtenerSobre(index)}
                             bloqueado={sobresBloqueados[index]}
-                            tiempoRestante={tiempoRestante}
-                        />
+                            tiempoRestante={tiempoRestante} />
                     ))}
                 </div>
 
                 <div className="row">
                     <div className="col-lg-12 col-md-12">
-
-                        {seleccionoSobre ? (
-                            <div className="card shadow mb-4">
-
-                                <div
-                                    className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 className="m-0 font-weight-bold text-primary">Contenido del Sobre</h6>
-                                </div>
-
-
-                                <div className="card-body p-4">
-                                    <div className="row">
-
-                                        {sobreObtenido.length > 0 ? (
-                                            sobreObtenido.map((lamina, idx) => (
-                                                <Lamina key={idx} datos={lamina} />
-                                            ))
-                                        ) : null}
-
-
+                    {
+                            loading
+                                ? <div className="d-flex justify-content-center m-4">
+                                    <div className="spinner-border" role="status">
+                                        <span className="visually-hidden">Cargando ...</span>
                                     </div>
                                 </div>
-                            </div>) :
-                            (<h2>No se ha seleccionado sobre</h2>)}
+                                : seleccionoSobre && !loading ? (
+                                    <div className="card shadow mb-4">
+
+                                        <div
+                                            className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                            <h6 className="m-0 font-weight-bold text-primary">Contenido del Sobre</h6>
+                                        </div>
+
+
+                                        <div className="card-body p-4">
+                                            <div className="row">
+
+                                                {sobreObtenido.length > 0 ? (
+                                                    sobreObtenido.map((lamina, idx) => (
+                                                        <Lamina key={idx} laminaVacia={false} laminaAlbum={false} datos={lamina} />
+                                                    ))
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                    </div>) :
+                                    (<h2>No se ha seleccionado sobre</h2>)
+                        }
+                        
                     </div>
                 </div>
             </div>
@@ -142,5 +153,4 @@ function LaminasPage() {
     )
 }
 
-
-export default LaminasPage;
+export default LaminasPage

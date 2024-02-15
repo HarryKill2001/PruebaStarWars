@@ -1,5 +1,5 @@
 import React from 'react'
-import logoDev from '../assets/darth.png';
+import logoDev from '../assets/code.png';
 
 function HomePage() {
     return (
@@ -18,7 +18,7 @@ function HomePage() {
         >
             <h1 style={{ textAlign: 'center' }}>
                 <strong>
-                    Bienvenido a la web de coleccionistas de Star Wars
+                    Bienvenido/a
                 </strong>
             </h1>
             <img
